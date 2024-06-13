@@ -1,11 +1,7 @@
 library(shiny)
 
-minDate <- as.Date("2020-09-16")
-maxDate <- as.Date("2020-09-23")
-defaultDate <- as.Date("2020-09-17")
-
 ui <- fluidPage(
-  sliderInput("deliveryDate", "When should we deliver?", min = minDate, max = maxDate, value = defaultDate)
+  sliderInput("valuePicker", "What do you choose?", min = 0, max = 100, value = 0, step = 5, animate = TRUE)
 ) 
 
 server <- function(input, output, session) {

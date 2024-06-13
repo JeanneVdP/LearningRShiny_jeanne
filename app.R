@@ -5,7 +5,7 @@ datasets <- c("economics", "faithfuld", "seals")
 ui <- fluidPage(
   selectInput("dataset", "Dataset", choices = datasets),
   verbatimTextOutput("summary"),
-  tableOutput("plot")
+  plotOutput("plot") # bug 1: output a plot, not a table
 ) 
 
 server <- function(input, output, session) {
@@ -18,8 +18,8 @@ server <- function(input, output, session) {
   })
   
   output$plot <- renderPlot({
-    plot(dataset), res = 96
-  })
+    plot(dataset()) # bug 2: dataset was called as variable, not as a function
+  }, res = 96)
 }
 
 # Run the application 

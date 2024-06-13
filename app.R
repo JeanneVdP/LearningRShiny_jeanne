@@ -1,25 +1,14 @@
 library(shiny)
-library(ggplot2)
 
-datasets <- c("economics", "faithfuld", "seals")
+minDate <- as.Date("2020-09-16")
+maxDate <- as.Date("2020-09-23")
+defaultDate <- as.Date("2020-09-17")
+
 ui <- fluidPage(
-  selectInput("dataset", "Dataset", choices = datasets),
-  verbatimTextOutput("summary"),
-  plotOutput("plot") # bug 1: output a plot, not a table
+  sliderInput("deliveryDate", "When should we deliver?", min = minDate, max = maxDate, value = defaultDate)
 ) 
 
 server <- function(input, output, session) {
-  dataset <- reactive({
-    get(input$dataset, "package:ggplot2")
-  })
-  
-  output$summary <- renderPrint({
-    summary(dataset())
-  })
-  
-  output$plot <- renderPlot({
-    plot(dataset()) # bug 2: dataset was called as variable, not as a function
-  }, res = 96)
 }
 
 # Run the application 

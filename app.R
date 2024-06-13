@@ -1,17 +1,11 @@
 library(shiny)
 
 ui <- fluidPage(
-  #a. verbatimTextOutput("CarSummary")
-  #b. textOutput("greeting")
-  #c. verbatimTextOutput("tTest")
-  verbatimTextOutput("structureCars") #d
+  plotOutput("plot", height = "300px", width = "700px")
 ) 
 
 server <- function(input, output, session) {
-  #a.output$CarSummary <- renderPrint(summary(mtcars))
-  #b. output$greeting <- renderText("Good morning!")
-  #c. output$tTest <- renderPrint(t.test(1:5, 2:6)) 
-  output$structureCars <- renderText(str(lm(mpg~wt, data = mtcars))) #d
+  output$plot <- renderPlot(plot(1:5), res = 96, alt = "A simple plot of numbers 1 to 5")
 }
 
 # Run the application 

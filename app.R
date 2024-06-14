@@ -1,11 +1,11 @@
 library(shiny)
 
 ui <- fluidPage(
-  plotOutput("plot", height = "300px", width = "700px")
+  dataTableOutput("dynamic")
 ) 
 
 server <- function(input, output, session) {
-  output$plot <- renderPlot(plot(1:5), res = 96, alt = "A simple plot of numbers 1 to 5")
+  output$dynamic <- renderDataTable(mtcars, options = list(pageLength = 5))
 }
 
 # Run the application 

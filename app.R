@@ -1,21 +1,28 @@
 library(shiny)
+library(vroom)
+library(tidyverse)
+
+dir.create("neiss")
+download_data <- function(name) {
+  url_data <- "https://github.com/hadley/mastering-shiny/tree/main/neiss/"
+  download.file(paste0(url_data, name), paste0("neiss/", name), quiet = TRUE)
+}
+download_data("injuries.tsv.gz")
+download_data("population.tsv")
+download_data("products.tsv")
+
+
+injuries <- vroom::vroom("neiss/injuries.tsv.gz")
+toilet_injuries <- injuries %>% filter(prod_code = 649) # product code 649 is toilet product related to injury
+
 
 ui <- fluidPage(
   textInput("name", "What's your name?"),
   textOutput("greeting")
 ) 
 
-# why would this code fail?
 server <- function(input, output, session) {
-  var <- reactive(df[[input$var]])
-  range <- reactive(range(var(), na.rm = TRUE))
 }
-# because;
-# 1 - we have no input with 'var' ID
-# 2 - var is already a standard function in R to determine the variance
-# so it is not a good idea to override this function
-# 3 - range is also a standard function in R, best not to assign a new function to it
-
 
 # Run the application 
 shinyApp(ui = ui, server = server) 

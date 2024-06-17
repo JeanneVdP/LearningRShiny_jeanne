@@ -1,28 +1,36 @@
 library(shiny)
 library(glue)
 
+# exercise 1: determine column width of sidebarLayout
+# this is 2/3 * 12 = 8
+
+# recreate with fluid functions + columns
+#ui <- fluidPage(
+#  titlePanel("Central limit theorem"),
+#  sidebarLayout(
+#    sidebarPanel(
+#      numericInput("m", "Number of samples:", 2, min = 1, max = 100)
+#    ),
+#    mainPanel(plotOutput("hist"))
+#  )
+#)
+
 ui <- fluidPage(
-  sliderInput("x", "x", value = 1, min = 0, max = 10),
-  sliderInput("y", "y", value = 2, min = 0, max = 10),
-  sliderInput("z", "z", value = 3, min = 0, max = 10),
-  textOutput("total")
+  titlePanel("Central limit theorem"),
+  fluidRow(
+    column(4,
+      numericInput("m", "Number of samples:", 2, min = 1, max = 100)
+    ),
+    column(8, plotOutput("hist"))
+  )
 )
 
 server <- function(input, output, session) {
-  observeEvent(input$x, {
-    message(glue("Updating y from {input$y} to {input$x * 2}"))
-    updateSliderInput(session, "y", value = input$x * 2)
-  })
-  
-  totalSum <- reactive({
-    total <- input$x + input$y + input$z
-    message(glue("New total is {total}"))
-    total
-  })
-  
-  output$total <- renderText({
-    totalSum()
-  })
+  output$hist <- renderPlot({
+    means <- replicate(1e4, mean(runif(input$m)))
+    hist(means, breaks = 20)
+  },
+  res = 96)
 }
 
 shinyApp(ui, server)

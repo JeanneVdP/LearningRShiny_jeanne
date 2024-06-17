@@ -1,28 +1,19 @@
 library(shiny)
-library(vroom)
-library(tidyverse)
 
-dir.create("neiss")
-download_data <- function(name) {
-  url_data <- "https://github.com/hadley/mastering-shiny/tree/main/neiss/"
-  download.file(paste0(url_data, name), paste0("neiss/", name), quiet = TRUE)
-}
-download_data("injuries.tsv.gz")
-download_data("population.tsv")
-download_data("products.tsv")
-
-
-injuries <- vroom::vroom("neiss/injuries.tsv.gz")
-toilet_injuries <- injuries %>% filter(prod_code = 649) # product code 649 is toilet product related to injury
-
+f <- function(x) g(x)
+g <- function(x) h(x)
+h <- function(x) x * 2
 
 ui <- fluidPage(
-  textInput("name", "What's your name?"),
-  textOutput("greeting")
-) 
+  selectInput("n", "N", 1:10),
+  plotOutput("plot")
+)
 
 server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    n <- f(input$n)
+    plot(head(cars, n))
+  }, res = 96)
 }
 
-# Run the application 
-shinyApp(ui = ui, server = server) 
+shinyApp(ui, server)

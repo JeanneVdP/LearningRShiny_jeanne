@@ -11,7 +11,7 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   output$plot <- renderPlot({
-    n <- f(input$n)
+    n <- f(as.numeric(input$n)) # fixed the bug (string vs numeric input value)
     plot(head(cars, n))
   }, res = 96)
 }

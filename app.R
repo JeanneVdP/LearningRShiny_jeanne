@@ -3,22 +3,26 @@ library(glue)
 
 # exercise 2
 
+xValues <- c(1:10)
+yValues <- c(2:11)
+zValues <- c(10:1)
+
 ui <- fluidPage(
-  titlePanel("Central limit theorem"),
-  sidebarLayout(
-    sidebarPanel(
-      numericInput("m", "Number of samples:", 2, min = 1, max = 100)
-    ),
-    mainPanel(plotOutput("hist")),
-    position = c("right")
+  titlePanel("Two plots"),
+  fluidRow(column(6, plotOutput("xAndY")),
+           column(6, plotOutput("xAndZ"))
   )
 )
 
 
 server <- function(input, output, session) {
-  output$hist <- renderPlot({
-    means <- replicate(1e4, mean(runif(input$m)))
-    hist(means, breaks = 20)
+  output$xAndY <- renderPlot({
+    plot(xValues, yValues)
+  },
+  res = 96)
+  
+  output$xAndZ <- renderPlot({
+    plot(xValues, zValues)
   },
   res = 96)
 }

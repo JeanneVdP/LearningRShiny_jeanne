@@ -11,18 +11,22 @@ ui <- fluidPage(
   titlePanel("Two plots"),
   fluidRow(column(6, plotOutput("xAndY")),
            column(6, plotOutput("xAndZ"))
-  )
+  ),
+  numericInput("yMultiplication", "y * input", 2, min = 1, max = 10),
+  numericInput("zMultiplication", "z * input", 5, min = 1, max = 10)
 )
 
 
 server <- function(input, output, session) {
   output$xAndY <- renderPlot({
-    plot(xValues, yValues)
+    yMultiplied <- yValues * input$yMultiplication
+    plot(xValues, yMultiplied)
   },
   res = 96)
   
   output$xAndZ <- renderPlot({
-    plot(xValues, zValues)
+    zMultiplied <- zValues * input$zMultiplication
+    plot(xValues, zMultiplied)
   },
   res = 96)
 }

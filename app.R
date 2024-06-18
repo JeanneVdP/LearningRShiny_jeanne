@@ -5,19 +5,25 @@ library(shinyFeedback)
 
 ui <- fluidPage(
   shinyFeedback::useShinyFeedback(),
-  numericInput("n", "n", value = 10),
-  textOutput("half")
+  textInput("dataset", "Dataset name"),
+  tableOutput("data")
 )
 
 server <- function(input, output, session) {
-  half <- reactive({
-    isEven <- input$n %% 2 == 0
-    shinyFeedback::feedbackWarning("n", !isEven, "Please select an even number")
-    req(isEven)
-    input$n / 2
+  getData <- reactive({
+    req(input$dataset)
+    
+    doesExist <- exists(input$dataset, "package:datasets")
+    shinyFeedback::feedbackDanger("dataset", !doesExist, "Unknown dataset")
+    req(doesExist, cancelOutput = FALSE)
+    
+    get(input$dataset, "package:datasets")
+  
   })
   
-  output$half <- renderText(half())
+  output$data <- renderTable({
+    head(getData())
+  })
 }
 
 shinyApp(ui, server)

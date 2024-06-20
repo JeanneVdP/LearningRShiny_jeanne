@@ -6,22 +6,18 @@ library(waiter)
 
 
 ui <- fluidPage(
-  waiter::use_waitress(),
-  numericInput("steps", "How many steps?", 10),
+  waiter::use_waiter(),
   actionButton("go", "go"),
   textOutput("result")
 )
 
 server <- function(input, output, session) {
   data <- eventReactive(input$go,{
-    waitress <- waiter::Waitress$new(max = input$steps, theme = "overlay-opacity")
-    on.exit(waitress$close())
+    waiter <- waiter::Waiter$new()
+    waiter$show()
+    on.exit(waiter$hide())
     
-    for (i in seq_len(input$steps)){
-      Sys.sleep(0.5)
-      waitress$inc(1)
-    }
-    
+    Sys.sleep(sample(5, 1))
     runif(1)
   })
   

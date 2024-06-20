@@ -1,29 +1,31 @@
 library(glue)
 library(shiny)
 library(shinyFeedback)
+library(waiter)
 
-squareTransformation <- "square"
-nonNegativeTransformations <- c("log", "square-root")
+
 
 ui <- fluidPage(
-  numericInput("x", "x", value = 0),
-  selectInput("trans", "transformation", choices = append(squareTransformation, 
-                                                          nonNegativeTransformations)),
-  textOutput("out")
+  waiter::use_waitress(),
+  numericInput("steps", "How many steps?", 10),
+  actionButton("go", "go"),
+  textOutput("result")
 )
 
 server <- function(input, output, session) {
-  output$out <- renderText({
-    if (input$x < 0 && input$trans %in% nonNegativeTransformations){
-      validate("x cannot be negative for this transformation")
+  data <- eventReactive(input$go,{
+    waitress <- waiter::Waitress$new(max = input$steps, theme = "overlay-opacity")
+    on.exit(waitress$close())
+    
+    for (i in seq_len(input$steps)){
+      Sys.sleep(0.5)
+      waitress$inc(1)
     }
     
-    switch (input$trans,
-      square = input$x ^2,
-      "square-root" = sqrt(input$x),
-      log = log(input$x)
-    )
+    runif(1)
   })
+  
+  output$result <- renderText(round(data(), 2))
 }
 
 shinyApp(ui, server)

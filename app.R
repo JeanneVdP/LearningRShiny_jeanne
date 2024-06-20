@@ -1,31 +1,20 @@
 library(glue)
 library(shiny)
-
-modalConfirm <- modalDialog(
-  "Are you sure you want to continue?",
-  title = "Deleting files",
-  footer = tagList(
-    actionButton("cancel", "Cancel"),
-    actionButton("ok", "Delete", class = "btn btn-danger")
-  )
-)
+library(dplyr, warn.conflicts = FALSE)
 
 ui <- fluidPage(
-  actionButton("delete", "Delet dis")
+  numericInput("min", "Minimum", 0),
+  numericInput("max", "Maximum", 3),
+  sliderInput("n", "n", min = 0, max = 3, value = 1)
 )
 
 server <- function(input, output, session) {
-  observeEvent(input$delete, {
-    showModal(modalConfirm)
+  observeEvent(input$min, {
+    updateSliderInput(inputId = "n", min = input$min)
   })
   
-  observeEvent(input$ok, {
-    showNotification("Files deleted")
-    removeModal()
-  })
-  
-  observeEvent(input$cancel, {
-    removeModal()
+  observeEvent(input$max, {
+    updateSliderInput(inputId = "n", max = input$max)
   })
 }
 

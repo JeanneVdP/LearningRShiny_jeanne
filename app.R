@@ -1,29 +1,32 @@
 library(glue)
 library(shiny)
-library(shinyFeedback)
-library(waiter)
 
-
+modalConfirm <- modalDialog(
+  "Are you sure you want to continue?",
+  title = "Deleting files",
+  footer = tagList(
+    actionButton("cancel", "Cancel"),
+    actionButton("ok", "Delete", class = "btn btn-danger")
+  )
+)
 
 ui <- fluidPage(
-  waiter::use_waiter(),
-  actionButton("go", "go"),
-  plotOutput("plot")
+  actionButton("delete", "Delet dis")
 )
 
 server <- function(input, output, session) {
-  data <- eventReactive(input$go,{
-    # use the new function to create a new waiter with an ID of 
-    # an existing element (output$plot) to overlay the waiter with
-    # (otherwise the waiter will overlay the entire body)
-    waiter::Waiter$new(id = "plot")$show()
-    # notice how on.exit is no longer needed
-    
-    Sys.sleep(3)
-    data.frame(x = runif(50), y = runif(50))
+  observeEvent(input$delete, {
+    showModal(modalConfirm)
   })
   
-  output$plot <- renderPlot(plot(data(), res = 96))
+  observeEvent(input$ok, {
+    showNotification("Files deleted")
+    removeModal()
+  })
+  
+  observeEvent(input$cancel, {
+    removeModal()
+  })
 }
 
 shinyApp(ui, server)

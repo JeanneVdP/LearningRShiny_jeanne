@@ -2,27 +2,50 @@ library(glue)
 library(shiny)
 library(dplyr, warn.conflicts = FALSE)
 
+parameterTabs <- tabsetPanel(
+  id = "params",
+  type = "hidden",
+  tabPanel(
+    "normal",
+    numericInput("mean", "mean", value = 1),
+    numericInput("sd", "sd", min = 0, value = 1),
+  ),
+  tabPanel(
+    "uniform",
+    numericInput("min", "min", value = 0),
+    numericInput("max", "max", value = 1),
+  ),
+  tabPanel(
+    "exponential",
+    numericInput("rate", "rate", min = 0, value = 1),
+  )
+)
+
 ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
-      selectInput("controller", "Show", choices = paste0("panel", 1:3))
+      selectInput("dist", "Distribution", choices = c("normal", "uniform", "exponential")),
+      numericInput("n", "Number of samples", value = 100),
+      parameterTabs
     ),
-    mainPanel(
-      tabsetPanel(
-        id = "switcher",
-        type = "hidden",
-        tabPanelBody("panel1", "Panel 1 content"),
-        tabPanelBody("panel2", "Panel 2 content"),
-        tabPanelBody("panel3", "Panel 3 content")
-      )
-    )
+    mainPanel(plotOutput("hist"))
   )
 )
 
 server <- function(input, output, session) {
-  observeEvent(input$controller,{
-    updateTabsetPanel(inputId = "switcher", selected = input$controller)
+  observeEvent(input$dist, {
+    updateTabsetPanel(inputId = "params", selected = input$dist)
   })
+  
+  sample <- reactive({
+    switch(input$dist,
+           normal = rnorm(input$n, input$mean, input$sd),
+           uniform = runif(input$n, input$min, input$max),
+           exponential = rexp(input$n, input$rate)
+    )
+  })
+  
+  output$hist <- renderPlot(hist(sample()), res = 96)
 }
 
 shinyApp(ui, server)

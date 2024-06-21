@@ -3,18 +3,25 @@ library(shiny)
 library(dplyr, warn.conflicts = FALSE)
 
 ui <- fluidPage(
-  numericInput("min", "Minimum", 0),
-  numericInput("max", "Maximum", 3),
-  sliderInput("n", "n", min = 0, max = 3, value = 1)
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("controller", "Show", choices = paste0("panel", 1:3))
+    ),
+    mainPanel(
+      tabsetPanel(
+        id = "switcher",
+        type = "hidden",
+        tabPanelBody("panel1", "Panel 1 content"),
+        tabPanelBody("panel2", "Panel 2 content"),
+        tabPanelBody("panel3", "Panel 3 content")
+      )
+    )
+  )
 )
 
 server <- function(input, output, session) {
-  observeEvent(input$min, {
-    updateSliderInput(inputId = "n", min = input$min)
-  })
-  
-  observeEvent(input$max, {
-    updateSliderInput(inputId = "n", max = input$max)
+  observeEvent(input$controller,{
+    updateTabsetPanel(inputId = "switcher", selected = input$controller)
   })
 }
 

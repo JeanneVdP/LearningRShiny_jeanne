@@ -2,50 +2,29 @@ library(glue)
 library(shiny)
 library(dplyr, warn.conflicts = FALSE)
 
-parameterTabs <- tabsetPanel(
-  id = "params",
-  type = "hidden",
-  tabPanel(
-    "normal",
-    numericInput("mean", "mean", value = 1),
-    numericInput("sd", "sd", min = 0, value = 1),
-  ),
-  tabPanel(
-    "uniform",
-    numericInput("min", "min", value = 0),
-    numericInput("max", "max", value = 1),
-  ),
-  tabPanel(
-    "exponential",
-    numericInput("rate", "rate", min = 0, value = 1),
-  )
-)
+
 
 ui <- fluidPage(
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("dist", "Distribution", choices = c("normal", "uniform", "exponential")),
-      numericInput("n", "Number of samples", value = 100),
-      parameterTabs
-    ),
-    mainPanel(plotOutput("hist"))
-  )
+  tabsetPanel(id = "wizard",
+              type = "hidden",
+              tabPanel("page_1", "welcome!", actionButton("page_12", "next")),
+              tabPanel("page_2", 
+                       "Only one page to go!", 
+                       actionButton("page_21", "prev"),
+                       actionButton("page_23", "next")),
+              tabPanel("page_3", "You're done!", actionButton("page_32", "prev")),
+    )
 )
 
 server <- function(input, output, session) {
-  observeEvent(input$dist, {
-    updateTabsetPanel(inputId = "params", selected = input$dist)
-  })
+  switchPage <- function(i){
+    updateTabsetPanel(inputId = "wizard", selected = paste0("page_", i))
+   }
   
-  sample <- reactive({
-    switch(input$dist,
-           normal = rnorm(input$n, input$mean, input$sd),
-           uniform = runif(input$n, input$min, input$max),
-           exponential = rexp(input$n, input$rate)
-    )
-  })
-  
-  output$hist <- renderPlot(hist(sample()), res = 96)
+  observeEvent(input$page_12, switchPage(2))
+  observeEvent(input$page_21, switchPage(1))
+  observeEvent(input$page_23, switchPage(3))
+  observeEvent(input$page_32, switchPage(2))
 }
 
 shinyApp(ui, server)

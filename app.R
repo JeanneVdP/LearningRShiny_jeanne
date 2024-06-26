@@ -1,41 +1,39 @@
+library(ggplot2)
 library(shiny)
+
+parameter_tabs <- tabsetPanel(
+  id = "params",
+  type = "hidden",
+  tabPanel("histogram", numericInput("binwidth_hist", "binwidth", value = 0.01)),
+  tabPanel("freqpoly", numericInput("binwidth_freq", "binwidth", value = 0.01)),
+  tabPanel("kernel_density", selectInput("bw", "bw", choices = c("nrd0", "nrd", "bcv"), selected = "nrd0")),
+)
+
 
 ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
-      checkboxInput("moreControls", 
-                    label = "Show advanced controls?",
-                    value = FALSE
-      )
+      selectInput("plot_type", "Choose the plot type", choices = c("histogram", "feqpoly", "kernel density")),
+      parameter_tabs
     ),
-    mainPanel(
-      tabsetPanel(
-        id = "basic",
-        type = "hidden",
-        tabPanelBody("panel1",
-                     numericInput("basicControl", label = "Basic:", 0),
-        )
-      ),
-      tabsetPanel(
-        id = "advanced",
-        type = "hidden",
-        tabPanelBody("emptyPanel", style = "display: none"),
-        tabPanelBody("panel2",
-                     numericInput("advancedCotrol", label = "Advanced:", 1)
-        )
-      )
-    )
+    mainPanel(plotOutput("diamond_ggplot"))
   )
 )
 
 server <- function(input, output, session) {
-  observeEvent(input$moreControls, {
-    if (input$moreControls) {
-      updateTabsetPanel(session, "advanced", selected = "panel2")
-    } else {
-      updateTabsetPanel(session, "advanced", selected = "emptyPanel")
-    }
+  observeEvent(input$params, {
+    updateTabsetPanel(inputId = "params", selected = input$plot_type)
   })
+  
+  definitive_plot <- reactive({
+    switch(input$plot_type,
+           histogram = ggplot2::ggplot(diamonds, mapping = aes(x = carat)) + ggplot2::geom_histogram(binwitdh = input$binwidth_hist),
+           freqpoly = ggplot2::ggplot(diamonds, mapping = aes(x = carat)) + ggplot2::geom_freqpoly(binwidth = input$binwidth_freq),
+           kernel_density = ggplot2::ggplot(diamonds, mapping = aes(x = carat)) + ggplot2::geom_density(bw = input$bw) 
+           )
+  })
+  
+  output$diamond_ggplot <- renderPlot(definitive_plot(), res = 96)
 }
 
 shinyApp(ui, server)
